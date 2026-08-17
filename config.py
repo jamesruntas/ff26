@@ -10,9 +10,10 @@ ESPN_LEAGUE_DEFAULT = 3  # 3 = ESPN's default PPR league; 1 = standard
 ROOT = Path(__file__).parent
 CACHE = ROOT / "cache"
 REFERENCE = ROOT / "reference"
+CUSTOM_SOURCES = REFERENCE / "custom_sources"  # drop a CSV here to add your own ADP source
 OUTPUT = ROOT / "output"
 SESSION = ROOT / "draft"
-for _d in (CACHE, REFERENCE, OUTPUT, SESSION):
+for _d in (CACHE, REFERENCE, CUSTOM_SOURCES, OUTPUT, SESSION):
     _d.mkdir(exist_ok=True)
 
 

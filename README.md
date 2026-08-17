@@ -1,16 +1,19 @@
 # ADP Master: 2026, PPR, 12-team
 
-Blends three independent ADP feeds into one master board, annotated with
-projected-offence context.
+Blends three independent ADP feeds into one master board, then layers a live
+draft-day assistant on top.
+
+## Quickstart
 
 ```
 pip install -r requirements.txt
-python main.py --templates      # writes blank reference/offense.csv
-# fill it in (32 rows, ranks 1..32)
-python main.py
+python main.py                          # builds the ADP board
+python -m streamlit run draft_gui.py    # live draft tracker, at localhost:8501
 ```
 
-Output: `output/adp_master_2026_ppr_12tm.csv`
+Reference data (offense and bye-week rankings) is already filled in for
+2026, nothing to configure to try it. Re-run `python main.py` any time for
+fresher ADP numbers; board writes to `output/adp_master_2026_ppr_12tm.csv`.
 
 ## Sources
 
@@ -23,6 +26,26 @@ Output: `output/adp_master_2026_ppr_12tm.csv`
 None of the three aggregates the others, so blending them isn't double
 counting. They *are* correlated (same news cycle, same rankings sites), which
 is expected and fine.
+
+### Adding your own source
+
+Drop a CSV into `reference/custom_sources/` with `player` and `adp` columns
+(`position` and `team` too, recommended, they're what makes matching
+reliable) and it's automatically blended in as one more feed, no code to
+write. The filename becomes the source tag, so `friends_mock.csv` shows up as
+column `adp_friends_mock`, folded into `adp_master`/`adp_rank` and the source
+agreement table right alongside FFC/MFL/ESPN. Team defenses in a custom file
+are matched by team code same as the built-in feeds; everyone else by name.
+
+Unlike the three fetched feeds, a custom source has no sample-size concept,
+so it never gets filtered by `MIN_DRAFT_PCT`, a hand-typed list is trusted at
+face value.
+
+Adding a genuinely new *live* source (another site's API, not a static list)
+means writing a `sources/yourname.py` with a `fetch()` following the pattern
+in `sources/ffc.py`, then wiring it into `main.py`'s `collect()` the same way
+FFC is. `aggregate.py` doesn't hardcode a source count, so nothing else needs
+to change.
 
 ## Columns
 
@@ -47,16 +70,13 @@ validated hard on load (offense ranks exactly 1-32, byeweeks just needs every
 team present). A half-filled table crashes rather than quietly producing a
 plausible-looking board. Re-check offense.csv after final cuts.
 
+Starting a new season from scratch: `python main.py --templates` writes blank
+versions of both, ready to fill in.
+
 ## Live draft tracker
 
-```
-python -m streamlit run draft_gui.py
-```
-
-(`python -m streamlit` always works; bare `streamlit run` too if it's on your
-PATH.) Opens at `http://localhost:8501`.
-
-A local, manual-entry app, no ESPN integration, no network, that you run
+`python -m streamlit run draft_gui.py` (see Quickstart above), a local,
+manual-entry app, no ESPN integration, no network, that you run
 alongside your real draft and update pick by pick. You only enter *who* got
 picked, with one click: search narrows the "Draft a player" list, click
 **Draft** on a row. Or use the **quick draft** box at the top: type a name and

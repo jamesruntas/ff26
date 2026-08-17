@@ -29,6 +29,7 @@ def fetch(
     is_ppr: int = IS_PPR,
     period: str = "RECENT",
     cutoff: int = 5,
+    use_cache: bool = True,
 ) -> pd.DataFrame:
     url = (
         f"{BASE}/{year}/export?TYPE=adp"
@@ -41,7 +42,7 @@ def fetch(
         f"&DETAILS=0"
         f"&JSON=1"
     )
-    body = get_json(url, tag="mfl")
+    body = get_json(url, tag="mfl", use_cache=use_cache)
 
     node = body.get("adp", {})
     players = node.get("player") or []
@@ -69,7 +70,7 @@ def fetch(
     return out.reset_index(drop=True)
 
 
-def fetch_dst_ids(year: int = SEASON) -> pd.DataFrame:
+def fetch_dst_ids(year: int = SEASON, use_cache: bool = True) -> pd.DataFrame:
     """mfl_id -> team for the 32 team defenses.
 
     Roster metadata, not ADP -- pulled from MFL's players export, not the adp
@@ -80,7 +81,7 @@ def fetch_dst_ids(year: int = SEASON) -> pd.DataFrame:
     usual name/id crosswalk.
     """
     url = f"{BASE}/{year}/export?TYPE=players&DETAILS=1&JSON=1"
-    body = get_json(url, tag="mfl_players")
+    body = get_json(url, tag="mfl_players", use_cache=use_cache)
 
     players = body.get("players", {}).get("player") or []
     df = pd.DataFrame(players)

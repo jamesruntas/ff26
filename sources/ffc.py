@@ -16,9 +16,9 @@ from fetch import get_json
 BASE = "https://fantasyfootballcalculator.com/api/v1/adp"
 
 
-def fetch(scoring: str = SCORING, teams: int = TEAMS, year: int = SEASON) -> pd.DataFrame:
+def fetch(scoring: str = SCORING, teams: int = TEAMS, year: int = SEASON, use_cache: bool = True) -> pd.DataFrame:
     url = f"{BASE}/{scoring}?teams={teams}&year={year}"
-    body = get_json(url, tag="ffc")
+    body = get_json(url, tag="ffc", use_cache=use_cache)
 
     players = body.get("players") or []
     if not players:

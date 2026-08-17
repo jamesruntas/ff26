@@ -36,7 +36,9 @@ PRO_TEAMS = {
 }
 
 
-def fetch(year: int = SEASON, limit: int = 700, rank_type: str = "PPR") -> pd.DataFrame:
+def fetch(
+    year: int = SEASON, limit: int = 700, rank_type: str = "PPR", use_cache: bool = True
+) -> pd.DataFrame:
     url = f"{BASE}/{year}/segments/0/leaguedefaults/{ESPN_LEAGUE_DEFAULT}?view=kona_player_info"
     fantasy_filter = {
         "players": {
@@ -44,7 +46,9 @@ def fetch(year: int = SEASON, limit: int = 700, rank_type: str = "PPR") -> pd.Da
             "sortDraftRanks": {"sortPriority": 100, "sortAsc": True, "value": rank_type},
         }
     }
-    body = get_json(url, tag="espn", headers={"X-Fantasy-Filter": json.dumps(fantasy_filter)})
+    body = get_json(
+        url, tag="espn", headers={"X-Fantasy-Filter": json.dumps(fantasy_filter)}, use_cache=use_cache
+    )
 
     entries = body.get("players")
     if not entries:

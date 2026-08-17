@@ -98,9 +98,17 @@ On top of the static board:
   pre-draft board so it can't fracture as players come off it.
 - **value_delta**: pick number minus `adp_rank`, also shown in fractional
   rounds. Positive means falling past consensus.
-- **survival_prob**: modeled probability the player lasts to your next pick,
-  using FFC's real per-player stdev where available, `adp_spread / 4` as a
-  rough fallback otherwise.
+- **survival_prob**: modeled probability the player lasts to your *next
+  meaningful* pick, using FFC's real per-player stdev where available,
+  `adp_spread / 4` as a rough fallback otherwise. Conditioned on "still here
+  right now", not the raw unconditional tail, so it never quotes a player's
+  ADP distribution as if the picks already made hadn't happened. At a
+  snake-draft turn (back-to-back picks, e.g. the last pick of a round and
+  the first of the next both landing on you), the first of the pair reads
+  ~100% (nobody else acts before your very next pick), but the second skips
+  past that trivial continuation and reflects real uncertainty about your
+  *following* turn instead, since that's the next point another team
+  actually gets to act.
 - **Recent picks**: a position-colored trail of the last 15 picks
   league-wide, hover for the name.
 - **positional-run banner**: flags a position at 3+ of the last 6 picks.

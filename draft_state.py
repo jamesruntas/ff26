@@ -105,8 +105,26 @@ def picks_until_my_turn(picks: list[dict], my_slot: int = MY_DRAFT_SLOT) -> int:
 
 
 def my_next_pick_no(picks: list[dict], my_slot: int = MY_DRAFT_SLOT) -> int:
+    """The pick where "will this player still be here" is a genuine question.
+
+    Not simply "the next time it's my turn" -- at a snake-draft turn (the
+    last pick of a round and the first pick of the next belong to the same
+    slot), the pick immediately after this one can *also* be mine. If it is,
+    a player surviving to that immediate continuation is trivially certain
+    (nobody else acts in between), so it's not useful as "should I wait"
+    information. The real question, once you're on the last pick of your own
+    back-to-back run, is whether a player lasts until your next turn *after*
+    that run ends -- the first point another team actually gets to act. So
+    this skips past any picks immediately preceding the current one that
+    were also mine before searching for "my turn" for real.
+    """
     pick_no = len(picks) + 1
-    return pick_no + picks_until_my_turn(picks, my_slot)
+    while pick_no > 1 and on_the_clock(pick_no - 1, my_slot=my_slot) == my_slot:
+        pick_no += 1
+    for offset in range(0, TEAMS * 2):
+        if on_the_clock(pick_no + offset, my_slot=my_slot) == my_slot:
+            return pick_no + offset
+    return -1  # shouldn't happen
 
 
 def my_roster(picks: list[dict], my_slot: int = MY_DRAFT_SLOT, roster_slots: dict = ROSTER_SLOTS) -> dict:

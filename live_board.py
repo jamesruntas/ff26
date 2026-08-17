@@ -16,6 +16,8 @@ stable "how many of this original group are gone" baseline to count against.
 """
 from __future__ import annotations
 
+import math
+
 import pandas as pd
 from scipy.stats import norm
 
@@ -29,8 +31,15 @@ def _full_tiered_board() -> pd.DataFrame:
     return tiers.assign_tiers(df)
 
 
-def _survival_prob(row: pd.Series, next_pick_no: int) -> float:
-    """P(player still available at next_pick_no), modeled as ADP ~ Normal.
+def _survival_prob(row: pd.Series, picks_completed: int, my_next_pick_no: int) -> float:
+    """P(player still on the board at my_next_pick_no | still on the board now).
+
+    The conditioning matters: without it, a player whose consensus ADP sits
+    at or below the current pick number reads as unlikely to survive even
+    though we can see them right there, undrafted, at this exact moment.
+    Most visible at a snake "turn" (back-to-back picks) -- when my_next_pick_no
+    is your very next pick, this must come out ~100%, not some smaller number
+    pulled from the raw, unconditional tail of their ADP distribution.
 
     Prefers FFC's real per-player stdev. When that's missing, falls back to
     adp_spread / 4 -- not a real standard deviation, just the least-bad proxy
@@ -44,7 +53,17 @@ def _survival_prob(row: pd.Series, next_pick_no: int) -> float:
     if pd.isna(scale) or scale is None or scale <= 0:
         spread = row.get("adp_spread")
         scale = max(spread / 4, 1) if pd.notna(spread) else 5.0
-    return float(norm.sf(next_pick_no, loc=mean, scale=scale))
+
+    # Log-space, not norm.sf() directly divided: deep in the tail (e.g. a
+    # rank-1 player still on the board 30 picks in) both the numerator and
+    # denominator underflow to exact 0.0 before a plain division ever sees
+    # them, turning a well-defined small ratio into a spurious 0/0. logsf
+    # stays numerically valid far past where sf() has already flattened to 0.
+    log_already_survived = norm.logsf(picks_completed, loc=mean, scale=scale)
+    log_target = norm.logsf(my_next_pick_no - 1, loc=mean, scale=scale)
+    if log_already_survived == float("-inf"):
+        return float("nan")
+    return float(min(1.0, math.exp(log_target - log_already_survived)))
 
 
 def _depletion_from_full(full: pd.DataFrame, drafted_ids: set[str]) -> pd.DataFrame:
@@ -70,7 +89,7 @@ def build(picks: list[dict] | None = None, my_slot: int = MY_DRAFT_SLOT) -> pd.D
 
     df["value_delta"] = next_pick_no - df["adp_rank"]
     df["value_delta_rounds"] = df["value_delta"] / TEAMS
-    df["survival_prob"] = df.apply(lambda r: _survival_prob(r, my_next), axis=1)
+    df["survival_prob"] = df.apply(lambda r: _survival_prob(r, len(picks), my_next), axis=1)
 
     # Scarcity-weighted value: the same pick-count fall means more when the
     # player's tier is nearly drafted out. remaining/total of 1.0 (untouched

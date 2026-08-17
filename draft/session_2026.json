@@ -1,0 +1,461 @@
+{
+  "my_slot": 6,
+  "picks": [
+    {
+      "pick_no": 1,
+      "mfl_id": "15281",
+      "player": "Ja'Marr Chase",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 2,
+      "mfl_id": "16162",
+      "player": "Jahmyr Gibbs",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 3,
+      "mfl_id": "16161",
+      "player": "Bijan Robinson",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 4,
+      "mfl_id": "16185",
+      "player": "Jaxon Smith-Njigba",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 5,
+      "mfl_id": "14802",
+      "player": "Jonathan Taylor",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 6,
+      "mfl_id": "16211",
+      "player": "Puka Nacua",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 7,
+      "mfl_id": "13130",
+      "player": "Christian McCaffrey",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 8,
+      "mfl_id": "15287",
+      "player": "Amon-Ra St. Brown",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 9,
+      "mfl_id": "14832",
+      "player": "CeeDee Lamb",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 10,
+      "mfl_id": "15715",
+      "player": "James Cook III",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 11,
+      "mfl_id": "16167",
+      "player": "De'Von Achane",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 12,
+      "mfl_id": "13604",
+      "player": "Saquon Barkley",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 13,
+      "mfl_id": "14836",
+      "player": "Justin Jefferson",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 14,
+      "mfl_id": "16181",
+      "player": "Chase Brown",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 15,
+      "mfl_id": "17042",
+      "player": "Ashton Jeanty",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 16,
+      "mfl_id": "17044",
+      "player": "Omarion Hampton",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 17,
+      "mfl_id": "14104",
+      "player": "A.J. Brown",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 18,
+      "mfl_id": "15751",
+      "player": "Drake London",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 19,
+      "mfl_id": "15794",
+      "player": "Trey McBride",
+      "pos": "TE"
+    },
+    {
+      "pick_no": 20,
+      "mfl_id": "17472",
+      "player": "Jeremiyah Love",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 21,
+      "mfl_id": "12626",
+      "player": "Derrick Henry",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 22,
+      "mfl_id": "13589",
+      "player": "Josh Allen",
+      "pos": "QB"
+    },
+    {
+      "pick_no": 23,
+      "mfl_id": "16641",
+      "player": "Brock Bowers",
+      "pos": "TE"
+    },
+    {
+      "pick_no": 24,
+      "mfl_id": "15711",
+      "player": "Kenneth Walker",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 25,
+      "mfl_id": "15754",
+      "player": "Chris Olave",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 26,
+      "mfl_id": "15762",
+      "player": "George Pickens",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 27,
+      "mfl_id": "16194",
+      "player": "Rashee Rice",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 28,
+      "mfl_id": "16615",
+      "player": "Malik Nabers",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 29,
+      "mfl_id": "14073",
+      "player": "Josh Jacobs",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 30,
+      "mfl_id": "15290",
+      "player": "Nico Collins",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 31,
+      "mfl_id": "15282",
+      "player": "DeVonta Smith",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 32,
+      "mfl_id": "13593",
+      "player": "Lamar Jackson",
+      "pos": "QB"
+    },
+    {
+      "pick_no": 33,
+      "mfl_id": "17071",
+      "player": "Tetairoa McMillan",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 34,
+      "mfl_id": "15710",
+      "player": "Kyren Williams",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 35,
+      "mfl_id": "14835",
+      "player": "Tee Higgins",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 36,
+      "mfl_id": "15708",
+      "player": "Breece Hall",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 37,
+      "mfl_id": "16598",
+      "player": "Bucky Irving",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 38,
+      "mfl_id": "15256",
+      "player": "Javonte Williams",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 39,
+      "mfl_id": "15253",
+      "player": "Travis Etienne Jr.",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 40,
+      "mfl_id": "17081",
+      "player": "Emeka Egbuka",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 41,
+      "mfl_id": "15753",
+      "player": "Garrett Wilson",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 42,
+      "mfl_id": "17104",
+      "player": "Colston Loveland",
+      "pos": "TE"
+    },
+    {
+      "pick_no": 43,
+      "mfl_id": "17045",
+      "player": "Cam Skattebo",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 44,
+      "mfl_id": "17102",
+      "player": "Tyler Warren",
+      "pos": "TE"
+    },
+    {
+      "pick_no": 45,
+      "mfl_id": "16580",
+      "player": "Drake Maye",
+      "pos": "QB"
+    },
+    {
+      "pick_no": 46,
+      "mfl_id": "16190",
+      "player": "Zay Flowers",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 47,
+      "mfl_id": "16627",
+      "player": "Ladd McConkey",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 48,
+      "mfl_id": "15284",
+      "player": "Jaylen Waddle",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 49,
+      "mfl_id": "14071",
+      "player": "David Montgomery",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 50,
+      "mfl_id": "17051",
+      "player": "Quinshon Judkins",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 51,
+      "mfl_id": "11675",
+      "player": "Davante Adams",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 52,
+      "mfl_id": "17070",
+      "player": "Luther Burden III",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 53,
+      "mfl_id": "17043",
+      "player": "TreVeyon Henderson",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 54,
+      "mfl_id": "16581",
+      "player": "Jayden Daniels",
+      "pos": "QB"
+    },
+    {
+      "pick_no": 55,
+      "mfl_id": "14797",
+      "player": "D'Andre Swift",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 56,
+      "mfl_id": "14109",
+      "player": "Terry McLaurin",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 57,
+      "mfl_id": "15756",
+      "player": "Jameson Williams",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 58,
+      "mfl_id": "14777",
+      "player": "Joe Burrow",
+      "pos": "QB"
+    },
+    {
+      "pick_no": 59,
+      "mfl_id": "11671",
+      "player": "Mike Evans",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 60,
+      "mfl_id": "13635",
+      "player": "DJ Moore",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 61,
+      "mfl_id": "17052",
+      "player": "Bhayshul Tuten",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 62,
+      "mfl_id": "17497",
+      "player": "Carnell Tate",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 63,
+      "mfl_id": "15329",
+      "player": "Kyle Pitts Sr.",
+      "pos": "TE"
+    },
+    {
+      "pick_no": 64,
+      "mfl_id": "14783",
+      "player": "Jalen Hurts",
+      "pos": "QB"
+    },
+    {
+      "pick_no": 65,
+      "mfl_id": "15789",
+      "player": "Christian Watson",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 66,
+      "mfl_id": "16616",
+      "player": "Rome Odunze",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 67,
+      "mfl_id": "17498",
+      "player": "Jordyn Tyson",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 68,
+      "mfl_id": "17103",
+      "player": "Harold Fannin Jr.",
+      "pos": "TE"
+    },
+    {
+      "pick_no": 69,
+      "mfl_id": "16214",
+      "player": "Sam LaPorta",
+      "pos": "TE"
+    },
+    {
+      "pick_no": 70,
+      "mfl_id": "17473",
+      "player": "Jadarian Price",
+      "pos": "RB"
+    },
+    {
+      "pick_no": 71,
+      "mfl_id": "16579",
+      "player": "Caleb Williams",
+      "pos": "QB"
+    },
+    {
+      "pick_no": 72,
+      "mfl_id": "12620",
+      "player": "Dak Prescott",
+      "pos": "QB"
+    },
+    {
+      "pick_no": 73,
+      "mfl_id": "16618",
+      "player": "Brian Thomas Jr.",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 74,
+      "mfl_id": "16614",
+      "player": "Marvin Harrison Jr.",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 75,
+      "mfl_id": "16192",
+      "player": "Parker Washington",
+      "pos": "WR"
+    },
+    {
+      "pick_no": 76,
+      "mfl_id": "14085",
+      "player": "Tony Pollard",
+      "pos": "RB"
+    }
+  ]
+}

@@ -14,9 +14,13 @@ import streamlit as st
 import draft_state
 import live_board
 import mock_draft
+import reference_data
 from config import (
     ACT_NOW_SURVIVAL,
+    CUSTOM_SOURCES,
     FALLERS_SHOWN,
+    OLINE_BOTTOM,
+    OLINE_TOP5,
     ROSTER_SLOTS,
     SAFE_VALUE_SURVIVAL,
     SEASON,
@@ -109,7 +113,7 @@ def fmt_value(delta: float, rounds: float) -> str:
     return f"{delta:+.0f} ({rounds:+.1f} rd)"
 
 
-def render_player_row(row, key_prefix: str, depletion_lookup: dict) -> None:
+def render_player_row(row, key_prefix: str, depletion_lookup: dict, my_starter_byes: set) -> None:
     """One player row: tier/depletion, pos/team/flags, bye, value, survival, Draft button.
 
     Shared by the "Draft a player" list and the "Biggest Fallers" leaderboard
@@ -133,6 +137,13 @@ def render_player_row(row, key_prefix: str, depletion_lookup: dict) -> None:
         if row.off_flag in OFF_FLAG_STYLE:
             bg, fg, label = OFF_FLAG_STYLE[row.off_flag]
             badges += _badge(label, bg, fg)
+        if row.pos in ("RB", "QB"):
+            if row.team in OLINE_TOP5:
+                badges += _badge("TOP5 OL", "#d4af37", "#2b1d00")
+            elif row.team in OLINE_BOTTOM:
+                badges += _badge("BOT6 OL", "#ef476f", "#ffffff")
+        if row.is_rookie:
+            badges += _badge("ROOKIE", "#00b4d8")
         signal = value_signal(row.value_delta, row.survival_prob)
         if signal:
             label, bg, fg = signal
@@ -141,7 +152,12 @@ def render_player_row(row, key_prefix: str, depletion_lookup: dict) -> None:
             badges += _badge("NEED", "#118ab2")
         c[1].markdown(f"**{row.player}**  {badges}", unsafe_allow_html=True)
 
-        c[2].write(f"bye {int(row.bye_week)}" if row.bye_week == row.bye_week else "")
+        if row.bye_week == row.bye_week:
+            wk = int(row.bye_week)
+            bye_bg = "#ef476f" if wk in my_starter_byes else "#6c757d"
+            c[2].markdown(_badge(f"BYE {wk}", bye_bg), unsafe_allow_html=True)
+        else:
+            c[2].write("")
         c[3].write(fmt_value(row.value_delta, row.value_delta_rounds))
         survive_badge = _badge(
             f"{row.survival_prob:.0%} @ your next" if row.survival_prob == row.survival_prob else "--",
@@ -158,6 +174,13 @@ my_slot = session["my_slot"]
 picks = session["picks"]
 
 roster = draft_state.my_roster(picks, my_slot=my_slot)
+bye_lookup = live_board.bye_week_lookup()
+my_starter_byes = {
+    bye_lookup[p["mfl_id"]]
+    for players in roster["starters"].values()
+    for p in players
+    if p["mfl_id"] in bye_lookup
+}
 TOTAL_DRAFT_PICKS = TEAMS * draft_state.total_roster_picks()
 draft_complete = len(picks) >= TOTAL_DRAFT_PICKS
 roster_full = draft_state.is_roster_full(roster)
@@ -175,15 +198,50 @@ with st.sidebar:
         draft_state.reset_session()
         st.rerun()
 
+    st.subheader("Custom ADP Source")
+    uploaded = st.file_uploader(
+        "Add your own ranking CSV",
+        type="csv",
+        help="Needs a 'player' column and an ADP-like column (adp / consensus / "
+        "average / avg) -- 'position' and 'team' recommended too, for reliable "
+        "matching. Saved to reference/custom_sources/; run `python main.py` "
+        "afterward to rebuild the board with it blended in.",
+    )
+    if uploaded is not None:
+        upload_key = (uploaded.name, uploaded.size)
+        if st.session_state.get("_custom_upload_key") != upload_key:
+            st.session_state["_custom_upload_key"] = upload_key
+            try:
+                tag, n = reference_data.save_custom_source(uploaded.name, uploaded.getvalue())
+                st.session_state["_custom_upload_result"] = (
+                    "success", f"Saved as source `{tag}` ({n} players). Run `python main.py` to rebuild the board."
+                )
+            except ValueError as e:
+                st.session_state["_custom_upload_result"] = ("error", str(e))
+        kind, msg = st.session_state.get("_custom_upload_result", (None, None))
+        if kind == "success":
+            st.success(msg)
+        elif kind == "error":
+            st.error(msg)
+
+    existing_sources = sorted(CUSTOM_SOURCES.glob("*.csv")) if CUSTOM_SOURCES.exists() else []
+    if existing_sources:
+        st.caption("Active custom sources:")
+        for f in existing_sources:
+            st.caption(f"- {f.name}")
+
     st.subheader("My Roster")
-    bye_lookup = live_board.bye_week_lookup()
+
+    def _with_bye(p: dict) -> str:
+        wk = bye_lookup.get(p["mfl_id"])
+        return f"{p['player']} (Wk {wk})" if wk is not None else p["player"]
 
     st.markdown("**Starters**")
     for pos in list(ROSTER_SLOTS.keys()):
         if pos == "BN":
             continue
         filled = roster["starters"].get(pos, [])
-        names = ", ".join(p["player"] for p in filled) or "--"
+        names = ", ".join(_with_bye(p) for p in filled) or "--"
         open_n = roster["open"].get(pos, 0)
         suffix = f"  _(needs {open_n})_" if open_n else ""
         st.markdown(f"- **{pos}**: {names}{suffix}")
@@ -191,7 +249,7 @@ with st.sidebar:
     st.markdown("**Bench**")
     if roster["bench"]:
         for p in roster["bench"]:
-            st.markdown(f"- {p['player']} ({p['pos']})")
+            st.markdown(f"- {_with_bye(p)} ({p['pos']})")
     else:
         st.markdown("--")
 
@@ -334,7 +392,7 @@ if not draft_complete:
             unsafe_allow_html=True,
         )
         for row in faller_rows:
-            render_player_row(row, "fallrow", depletion_lookup)
+            render_player_row(row, "fallrow", depletion_lookup, my_starter_byes)
     else:
         st.caption("Nobody's fallen meaningfully past consensus yet.")
 
@@ -358,7 +416,7 @@ if not draft_complete:
     )
 
     for row in visible_rows:
-        render_player_row(row, "draftrow", depletion_lookup)
+        render_player_row(row, "draftrow", depletion_lookup, my_starter_byes)
 
     if len(candidates) > SHOW:
         st.caption(f"{len(candidates) - SHOW} more match -- narrow your search to see them")

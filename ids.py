@@ -17,7 +17,7 @@ import unicodedata
 
 import pandas as pd
 
-from config import PLAYERIDS_URL, norm_team
+from config import PLAYERIDS_URL, SEASON, norm_team
 
 
 _SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
@@ -25,6 +25,12 @@ _SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
 # FFC name (normalised) -> MFL id. Fill in as breakages appear each preseason.
 MANUAL_MFL_IDS: dict[str, str] = {
     # "example player": "16789",
+    # DynastyProcess's crosswalk carries a stale retired "Marvin Harrison"
+    # (Colts HOF WR) sharing the same suffix-stripped merge_name as the
+    # active rookie, so the ambiguous-pair guard in attach_mfl_id_by_name
+    # correctly refuses to auto-match either. In a live-season ADP context
+    # this can only mean the active player.
+    "marvin harrison": "16614",
 }
 
 
@@ -42,7 +48,7 @@ def merge_name(name: str) -> str:
 def load_crosswalk() -> pd.DataFrame:
     """Fetch DynastyProcess db_playerids and return one row per mfl_id."""
     df = pd.read_csv(PLAYERIDS_URL, low_memory=False, dtype=str)
-    keep = ["mfl_id", "espn_id", "sleeper_id", "name", "merge_name", "position", "team"]
+    keep = ["mfl_id", "espn_id", "sleeper_id", "name", "merge_name", "position", "team", "draft_year"]
     df = df[[c for c in keep if c in df.columns]].copy()
 
     df = df[df["mfl_id"].notna()]
@@ -59,6 +65,9 @@ def load_crosswalk() -> pd.DataFrame:
     df["position"] = df["position"].fillna("").str.upper().str.replace("PK", "K")
     df["team"] = df["team"].map(norm_team)
     df["espn_id"] = df["espn_id"].astype(str).str.strip().replace({"nan": None})
+    # A rookie is someone whose NFL draft class is this fantasy season's --
+    # not a fixed offset, since that drifts every year the crosswalk updates.
+    df["is_rookie"] = pd.to_numeric(df.get("draft_year"), errors="coerce") == SEASON
 
     return df.drop_duplicates(subset=["mfl_id"], keep="first").reset_index(drop=True)
 
@@ -72,6 +81,18 @@ def attach_mfl_id_by_name(
     work["_pos"] = work[pos_col].fillna("").str.upper().str.replace("PK", "K")
 
     lookup = xwalk[["mfl_id", "merge_name", "position"]].rename(columns={"position": "_pos"})
+
+    # An (merge_name, _pos) pair matching more than one crosswalk id is
+    # ambiguous -- merging against it would silently explode one input row
+    # into several output rows, one per candidate identity. This is exactly
+    # how "Marvin Harrison Jr." collided with a stale retired "Marvin
+    # Harrison" entry sharing the same suffix-stripped name and position:
+    # DynastyProcess's crosswalk carries both, so an unfiltered merge here
+    # produced three board rows for one real player. Drop ambiguous groups
+    # from the lookup so they fall through to unmatched instead of guessing
+    # wrong -- same principle Pass 2 below already applies to merge_name alone.
+    pair_counts = lookup.groupby(["merge_name", "_pos"])["mfl_id"].transform("nunique")
+    lookup = lookup[pair_counts == 1]
 
     # Pass 1: name + position. Strictest, catches the overwhelming majority.
     out = work.merge(lookup, on=["merge_name", "_pos"], how="left")

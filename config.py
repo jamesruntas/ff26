@@ -41,6 +41,11 @@ TIER_GAP_RANK = {"QB": 4, "RB": 3, "WR": 3, "TE": 4, "K": 6, "DST": 6}
 RUN_WINDOW = 6         # positional-run detector: look at the last N picks league-wide
 RUN_THRESHOLD = 3      # ...and flag a position if it's >= this many of them
 
+# O-line context for RB/QB rows (gold/red badge in the tracker). Hand-classified,
+# same reasoning as offense.csv/byeweeks.csv -- no free O-line ranking API exists.
+OLINE_TOP5 = {"DEN", "PHI", "TB", "BUF", "CHI"}
+OLINE_BOTTOM = {"CLE", "TEN", "HOU", "WSH", "ARI", "JAX"}
+
 # --- mock draft (auto-fill other teams' picks) -----------------------------
 MOCK_POOL_SIZE = 5     # CPU picks draw from the top N available players by adp_rank
 MOCK_DECAY = 0.55      # geometric weight decay across that pool -- top player likeliest, not guaranteed

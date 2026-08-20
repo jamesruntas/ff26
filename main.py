@@ -134,6 +134,7 @@ def collect(use_cache: bool = True) -> tuple[pd.DataFrame, list[str], dict[str, 
 
     merged["team"] = merged["team"].map(norm_team)
     merged["pos"] = merged["pos"].fillna("").str.upper().replace({"PK": "K", "DEF": "DST"})
+    merged["is_rookie"] = merged["mfl_id"].map(xwalk.set_index("mfl_id")["is_rookie"]).fillna(False)
 
     adp_cols = ["adp_ffc", "adp_mfl", "adp_espn"] + [f"adp_{tag}" for tag in custom]
     return merged, adp_cols, pct_cols
@@ -148,7 +149,7 @@ def enrich(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def final_columns(adp_cols: list[str]) -> list[str]:
-    cols = ["adp_rank", "adp_slot", "adp_master", "player", "pos", "team", "off_rank", "off_flag", "bye_week"]
+    cols = ["adp_rank", "adp_slot", "adp_master", "player", "pos", "team", "is_rookie", "off_rank", "off_flag", "bye_week"]
     for col in adp_cols:
         cols.append(col)
         if col == "adp_ffc":

@@ -31,11 +31,3 @@ FFC (mock drafts), MFL (real home-league drafts), ESPN (platform drafts); none a
 Per-row badges: tier + live depletion, O-line context (RB/QB only, gold `TOP5 OL` / red `BOT6 OL`, see `config.OLINE_TOP5`/`OLINE_BOTTOM`), `ROOKIE`, offense `TOP5`/`BOT5`, bye week (red on collision with a starter), `value_delta` (+ fractional rounds), survival probability (conditioned on already being available now, not the raw unconditional tail), `NEED` (fills an open roster slot), `ACT NOW`/`VALUE SAFE` (value + survival combined). "Biggest Fallers" ranks by scarcity-weighted value.
 
 Mock-draft CPU opponents pick with weighted randomness, not pure rank order; one-click auto-finish once your roster's full. Start Over resets the pick log (keeps your slot).
-
-## Known failure modes
-
-FFC/custom sources match by name; an ambiguous crosswalk collision (two players sharing a suffix-stripped name) is refused rather than guessed, add an override to `ids.MANUAL_MFL_IDS`. MFL's filtered pool can be empty in early preseason (try `PERIOD=ALL` or a lower `CUTOFF`). ESPN ADP-vs-editorial-rank correlation above ~0.98 suggests autodraft contamination.
-
-## Attribution
-
-ADP data courtesy of Fantasy Football Calculator, MyFantasyLeague, and ESPN. Player ID crosswalk from DynastyProcess.

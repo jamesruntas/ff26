@@ -11,6 +11,23 @@ adp_master is reported separately as the median of the raw ADP values, because
 a pick number is what you actually want to read on draft day. Use adp_rank for
 ordering and adp_master for "where does he go".
 
+One source can be named *primary* (config.PRIMARY_SOURCE), and then it is the
+only thing that sets a price: adp_master is its ADP, and a player it does not
+list is dropped rather than backfilled from the other feeds. This is not a
+general "trust one feed more" knob. It is for a feed that has already done the
+aggregating, where median-ing it against single-pool feeds throws away the
+aggregation it already did and double counts the pools it already contains.
+
+Dropping rather than backfilling is the whole point of the strict version. A
+blended fallback would put a number in adp_master that did not come from the
+source of record, and nothing downstream could tell the two apart -- the board
+would read as one consistent market price when it was two different things in
+one column.
+
+With a primary source, ordering also moves from rank space into pick space:
+there is only one scale left to be on, so there is nothing to normalise. The
+rank-space median stays on as the tiebreak.
+
 adp_spread (max - min across sources) is the column that earns its keep. All
 these drafter pools read the same news, so they will agree most of the time;
 the disagreements are where platform format is doing the work, and that is the
@@ -45,7 +62,18 @@ def apply_sample_floor(df: pd.DataFrame, pct_cols: dict[str, str]) -> pd.DataFra
     return out
 
 
-def build_master(df: pd.DataFrame, adp_cols: list[str]) -> pd.DataFrame:
+def build_master(
+    df: pd.DataFrame, adp_cols: list[str], primary_col: str | None = None
+) -> pd.DataFrame:
+    """Blend adp_cols into one board. If primary_col is given, that source is
+    the sole author of adp_master and rows it does not price are dropped."""
+    if primary_col is not None and primary_col not in adp_cols:
+        raise ValueError(
+            f"primary source {primary_col!r} is not among the sources actually "
+            f"loaded ({sorted(adp_cols)}). Silently falling back to the blend "
+            "would produce a whole board that looks right and isn't."
+        )
+
     out = df.copy()
 
     for col in adp_cols:
@@ -64,13 +92,23 @@ def build_master(df: pd.DataFrame, adp_cols: list[str]) -> pd.DataFrame:
     out = out[out["sources_n"] >= MIN_SOURCES].copy()
 
     out["_median_rank"] = out[rank_cols].median(axis=1, skipna=True)
-    out["adp_master"] = out[adp_cols].median(axis=1, skipna=True).round(2)
 
+    if primary_col is None:
+        out["adp_master"] = out[adp_cols].median(axis=1, skipna=True).round(2)
+        sort_by = ["_median_rank", "adp_master"]
+    else:
+        out = out[out[primary_col].notna()].copy()
+        out["adp_master"] = out[primary_col].round(2)
+        sort_by = ["adp_master", "_median_rank"]
+
+    # Spread stays across *every* source including the primary -- it is the
+    # disagreement signal, and the primary's distance from the raw feeds is
+    # exactly the kind of disagreement worth seeing.
     out["adp_spread"] = (
         out[adp_cols].max(axis=1, skipna=True) - out[adp_cols].min(axis=1, skipna=True)
     ).round(1)
 
-    out = out.sort_values(["_median_rank", "adp_master"], kind="mergesort").reset_index(drop=True)
+    out = out.sort_values(sort_by, kind="mergesort").reset_index(drop=True)
     out["adp_rank"] = range(1, len(out) + 1)
 
     # Round-and-pick notation, e.g. 1.03 for the third pick of round one.

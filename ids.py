@@ -31,6 +31,19 @@ MANUAL_MFL_IDS: dict[str, str] = {
     # correctly refuses to auto-match either. In a live-season ADP context
     # this can only mean the active player.
     "marvin harrison": "16614",
+
+    # Nickname vs. formal first name. The crosswalk carries the legal name,
+    # several feeds publish the broadcast name, and no amount of suffix
+    # stripping bridges Chig -> Chigoziem. Deliberately listed one by one
+    # rather than taught as a Mike/Michael rule: nickname tables are exactly
+    # the kind of "helpful" generalisation that eventually merges two real
+    # players who happen to share a shortened name.
+    "mike wilson": "16206",       # Michael Wilson, WR ARI
+    "mike pittman": "14842",      # Michael Pittman, WR PIT
+    "matt stafford": "9431",      # Matthew Stafford, QB LAR
+    "matt golden": "17075",       # Matthew Golden, WR GB
+    "chig okonkwo": "15889",      # Chigoziem Okonkwo, TE WSH
+    "kenny gainwell": "15255",    # Kenneth Gainwell, RB TB
 }
 
 
@@ -127,7 +140,11 @@ def attach_dst_mfl_id(
     identity is unambiguous from its team, so this sidesteps name matching
     for the one position where it can't work at all.
     """
-    lookup = dst_xwalk.set_index("team")["mfl_id"]
+    lookup = dst_xwalk.assign(team=dst_xwalk["team"].map(norm_team)).set_index("team")["mfl_id"]
     out = df.copy()
-    out["mfl_id"] = out[team_col].map(lookup)
+    # Both sides through norm_team: feeds spell Jacksonville JAC as often as
+    # JAX, Washington WAS as often as WSH. Matching raw codes silently drops
+    # the defense instead of erroring, which is the worst of both worlds --
+    # it looks like the feed just didn't carry that team.
+    out["mfl_id"] = out[team_col].map(norm_team).map(lookup)
     return out

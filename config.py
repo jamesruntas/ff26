@@ -27,6 +27,25 @@ MIN_SOURCES = 2        # player must appear in at least this many feeds
 MIN_DRAFT_PCT = 5.0    # and be drafted in at least this % of drafts, per source
 TOP_N_FLAG = 5         # top/bottom N offences to flag
 
+# --- primary source -------------------------------------------------------
+# Name a source tag here and that feed becomes the sole author of adp_master.
+# Not "weighted more" -- the only one: a player it does not list gets no price
+# and does not reach the board, rather than being quietly backfilled with a
+# blend of the other feeds.
+#
+# That is the right call for a feed which has already done the aggregating --
+# an export whose AVG column averages Sleeper/ESPN/Yahoo/Underdog/CBS/FFPC and
+# an expert consensus. Median-ing that against three single-pool feeds throws
+# away the aggregation it already did, and double counts the pools it already
+# contains. It also covers the full player universe including kickers and team
+# defenses, which is what makes "nowhere else" viable with no gaps to fill.
+#
+# The other feeds stay loaded as context, not as prices: they populate
+# adp_spread and carry FFC's per-player stdev for the survival model.
+#
+# Tag = slugified custom-source filename. Set to None for a median-of-all blend.
+PRIMARY_SOURCE = "ppr_overall_7d_08222026"
+
 # --- live draft tracker -----------------------------------------------------
 MY_DRAFT_SLOT = 1      # your 1-indexed slot in the snake order -- set this before draft day
 

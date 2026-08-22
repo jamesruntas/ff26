@@ -16,9 +16,11 @@ Reference data (offense/bye-week rankings) is already filled in for 2026. Re-run
 
 FFC (mock drafts), MFL (real home-league drafts), ESPN (platform drafts); none aggregate each other, so blending isn't double counting. Add your own: drop a CSV with a `player` column and an ADP-like column (`adp`/`consensus`/`average`/`avg`) into `reference/custom_sources/`, or upload one from the tracker's sidebar. `python main.py --templates` writes blank reference files for a fresh season.
 
+One source can be named **primary** via `PRIMARY_SOURCE` in `config.py`, and then it is the sole author of `adp_master`: a player it doesn't list gets no price and doesn't reach the board, rather than being quietly backfilled from the other feeds. That's for a feed which has already done the aggregating -- an export whose `AVG` averages Sleeper/ESPN/Yahoo/Underdog/CBS/FFPC plus an expert consensus. Median-ing that against three single-pool feeds throws away the aggregation it already did and double counts the pools it already contains. The other feeds stay loaded as context rather than price: they populate `adp_spread` and carry FFC's per-player stdev for the survival model. Set it to `None` for a median-of-all blend.
+
 ## Columns
 
-`adp_rank` `adp_master` `player` `pos` `team` `is_rookie` `off_flag` `bye_week` `adp_<source>` `sources_n` `adp_spread` `mfl_id`. `adp_master` is the median raw ADP ("where he goes"); `adp_rank` is the median of within-source ranks (scale-safe ordering across feeds of different depth); `adp_spread` is max minus min across sources (platform disagreement signal).
+`adp_rank` `adp_master` `player` `pos` `team` `is_rookie` `off_flag` `bye_week` `adp_<source>` `sources_n` `adp_spread` `mfl_id`. `adp_master` is the pick number ("where he goes") -- the primary source's ADP when one is set, otherwise the median raw ADP. `adp_rank` is the board order: with no primary source it's the median of within-source ranks (scale-safe across feeds of different depth), with one it's `adp_master` order, since there's only one scale left to be on. `adp_spread` is max minus min across sources (platform disagreement signal -- note it compares feeds of different depth, so it inflates for players deep enough that the shallower feeds don't list them).
 
 ## The hand-maintained files
 

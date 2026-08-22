@@ -8,7 +8,14 @@
 Sources: Fantasy Football Calculator (mock drafts), MyFantasyLeague (real
 home leagues), ESPN (ESPN-platform drafts), plus any CSVs dropped in
 reference/custom_sources/ (see reference_data.load_custom_sources). None of
-them aggregate each other, so blending them is not double counting.
+the three API feeds aggregate each other, so blending them is not double
+counting.
+
+A custom source that has already done the aggregating is the exception, and
+config.PRIMARY_SOURCE is the answer to it: name that source and it becomes the
+sole author of adp_master, with players it doesn't list dropped rather than
+backfilled. The other feeds stay loaded as context rather than price -- they
+supply adp_spread and FFC's per-player stdev for the survival model.
 ADP data courtesy of Fantasy Football Calculator, MyFantasyLeague and ESPN.
 """
 from __future__ import annotations
@@ -21,7 +28,7 @@ import pandas as pd
 import aggregate
 import ids
 import reference_data
-from config import SCORING, SEASON, TEAMS, master_csv_path, norm_team
+from config import PRIMARY_SOURCE, SCORING, SEASON, TEAMS, master_csv_path, norm_team
 from sources import espn as espn_src
 from sources import ffc as ffc_src
 from sources import mfl as mfl_src
@@ -174,8 +181,13 @@ def main() -> int:
     merged, adp_cols, pct_cols = collect(use_cache=not args.no_cache)
 
     merged = aggregate.apply_sample_floor(merged, pct_cols)
-    master = aggregate.build_master(merged, adp_cols)
+    primary_col = f"adp_{PRIMARY_SOURCE}" if PRIMARY_SOURCE else None
+    master = aggregate.build_master(merged, adp_cols, primary_col=primary_col)
     print(f"\nmaster: {len(master)} players in >= {aggregate.MIN_SOURCES} sources")
+    if primary_col:
+        priced = int(merged[primary_col].notna().sum())
+        print(f"        adp_master from {primary_col} only -- {priced} players priced by it,")
+        print(f"        {len(master)} on the board after the source/sample floors")
     print("\nsource agreement (spearman):")
     print(aggregate.source_agreement(merged, adp_cols).to_string())
 

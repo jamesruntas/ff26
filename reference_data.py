@@ -30,6 +30,24 @@ BYEWEEKS_CSV = REFERENCE / "byeweeks.csv"
 # the blended column, which is exactly the number we want.
 _ADP_COLUMN_CANDIDATES = ["adp", "consensus", "average", "avg"]
 
+# Same idea for the position column: "POS" is at least as common as
+# "Position" in these exports, and getting it wrong is expensive -- an empty
+# position downgrades every row from a name+position match to a name-only
+# one, and routes team defenses away from the team-code path entirely.
+_POSITION_COLUMN_CANDIDATES = ["position", "pos"]
+
+# Ranking exports write the position with its positional rank glued on
+# ("RB1", "TE15", "K18"), and every source spells team defense differently.
+_POSITION_ALIASES = {"DEF": "DST", "D/ST": "DST", "DEFENSE": "DST", "PK": "K"}
+
+
+def _normalise_position(col: pd.Series) -> pd.Series:
+    """'RB1' -> 'RB', 'DEF' -> 'DST'. Trailing digits are a positional rank,
+    not part of the position, and stripping them is what lets a FantasyPros
+    style export match on name+position at all."""
+    out = col.fillna("").astype(str).str.upper().str.strip().str.rstrip("0123456789")
+    return out.replace(_POSITION_ALIASES)
+
 
 def _check_teams(df: pd.DataFrame, col: str, path) -> pd.DataFrame:
     """Shared shape check: all 32 teams present, none unrecognised, none blank."""
@@ -119,6 +137,8 @@ def _parse_custom_source(raw: pd.DataFrame, tag: str, source_label: str) -> pd.D
     if "player" not in cols:
         raise ValueError(f"{source_label}: needs a 'player' column, got {list(raw.columns)}.")
 
+    pos_source_col = next((cols[c] for c in _POSITION_COLUMN_CANDIDATES if c in cols), None)
+
     adp_source_col = next((cols[c] for c in _ADP_COLUMN_CANDIDATES if c in cols), None)
     if adp_source_col is None:
         raise ValueError(
@@ -129,7 +149,7 @@ def _parse_custom_source(raw: pd.DataFrame, tag: str, source_label: str) -> pd.D
     adp_col = f"adp_{tag}"
     out = pd.DataFrame({
         "name": raw[cols["player"]],
-        "position": raw[cols["position"]].astype(str).str.upper().str.strip() if "position" in cols else "",
+        "position": _normalise_position(raw[pos_source_col]) if pos_source_col else "",
         "team": raw[cols["team"]] if "team" in cols else pd.NA,
         adp_col: pd.to_numeric(raw[adp_source_col], errors="coerce"),
     })
